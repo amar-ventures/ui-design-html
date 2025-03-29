@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow | Modern TODO App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0B0E14;
+            color: #E6E8ED;
+        }
+        .task-item {
+            transition: all 0.3s ease;
+        }
+        .task-item:hover {
+            transform: translateX(5px);
+        }
+        .animate-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #4F46E5;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4F46E5;
+        }
+        .priority-high { @apply border-l-4 border-rose-500; }
+        .priority-medium { @apply border-l-4 border-amber-500; }
+        .priority-low { @apply border-l-4 border-emerald-500; }
+        .glassmorphism {
+            background: rgba(23, 25, 35, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900">
+    <div class="relative min-h-screen">
+        <!-- Background Decorations -->
+        <div class="absolute top-20 left-20 w-72 h-72 bg-indigo-600/10 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute bottom-20 right-20 w-80 h-80 bg-rose-600/10 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl -z-10"></div>
+        
+        <!-- App Container -->
+        <div class="container max-w-5xl mx-auto px-4 py-8">
+            <!-- App Header -->
+            <header class="flex flex-col md:flex-row justify-between items-center mb-10">
+                <div class="flex items-center gap-3 mb-6 md:mb-0">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                    </div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">TaskFlow</h1>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <input type="text" placeholder="Search tasks..." 
+                              class="pl-10 pr-4 py-2 rounded-xl bg-slate-800/50 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+
+                    <button class="p-2 rounded-lg bg-slate-800/50 border border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                    </button>
+
+                    <button class="p-2 rounded-lg bg-slate-800/50 border border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+
+                    <button class="p-2 rounded-lg bg-slate-800/50 border border-slate-700 hover:bg-slate-700/50 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Sidebar -->
+                <div class="lg:col-span-3">
+                    <div class="glassmorphism rounded-2xl p-6 mb-6">
+                        <h2 class="text-lg font-semibold text-white mb-4">Categories</h2>
+                        <ul class="space-y-2">
+                            <li>
+                                <a href="#" class="flex items-center justify-between p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-medium">
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex items-center justify-center w-5 h-5 bg-indigo-500/20 rounded-md text-indigo-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                            </svg>
+                                        </span>
+                                        All Tasks
+                                    </div>
+                                    <span class="text-xs bg-indigo-500/20 px-2 py-1 rounded-md">12</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800/50 transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex items-center justify-center w-5 h-5 bg-amber-500/20 rounded-md text-amber-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                            </svg>
+                                        </span>
+                                        Work
+                                    </div>
+                                    <span class="text-xs bg-gray-700/50 px-2 py-1 rounded-md">5</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800/50 transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex items-center justify-center w-5 h-5 bg-emerald-500/20 rounded-md text-emerald-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                            </svg>
+                                        </span>
+                                        Personal
+                                    </div>
+                                    <span class="text-xs bg-gray-700/50 px-2 py-1 rounded-md">4</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-800/50 transition-colors">
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex items-center justify-center w-5 h-5 bg-rose-500/20 rounded-md text-rose-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                            </svg>
+                                        </span>
+                                        Urgent
+                                    </div>
+                                    <span class="text-xs bg-gray-700/50 px-2 py-1 rounded-md">3</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="glassmorphism rounded-2xl p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold text-white">Analytics</h2>
+                            <button class="text-gray-400 hover:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-400">Completed</span>
+                                    <span class="text-white font-medium">67%</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-700/50 rounded-full">
+                                    <div class="h-full w-[67%] bg-gradient-to-r from-emerald-500 to-green-500 rounded-full"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-400">In Progress</span>
+                                    <span class="text-white font-medium">25%</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-700/50 rounded-full">
+                                    <div class="h-full w-1/4 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-400">Overdue</span>
+                                    <span class="text-white font-medium">8%</span>
+                                </div>
+                                <div class="w-full h-2 bg-slate-700/50 rounded-full">
+                                    <div class="h-full w-[8%] bg-gradient-to-r from-rose-500 to-red-500 rounded-full"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Task Area -->
+                <div class="lg:col-span-9">
+                    <!-- Task Actions -->
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Today's Tasks</h2>
+                            <p class="text-gray-400">Wednesday, 29 March</p>
+                        </div>
+
+                        <button class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 px-4 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Add New Task
+                        </button>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="flex flex-wrap gap-2 mb-8">
+                        <button class="px-4 py-2 bg-indigo-500/10 text-indigo-400 font-medium rounded-lg">
+                            All
+                        </button>
+                        <button class="px-4 py-2 bg-slate-800/50 text-gray-400 hover:bg-slate-700/50 hover:text-gray-300 font-medium rounded-lg transition-colors">
+                            Today
+                        </button>
+                        <button class="px-4 py-2 bg-slate-800/50 text-gray-400 hover:bg-slate-700/50 hover:text-gray-300 font-medium rounded-lg transition-colors">
+                            Upcoming
+                        </button>
+                        <button class="px-4 py-2 bg-slate-800/50 text-gray-400 hover:bg-slate-700/50 hover:text-gray-300 font-medium rounded-lg transition-colors">
+                            Important
+                        </button>
+                        <button class="px-4 py-2 bg-slate-800/50 text-gray-400 hover:bg-slate-700/50 hover:text-gray-300 font-medium rounded-lg transition-colors">
+                            Completed
+                        </button>
+                    </div>
+
+                    <!-- Tasks List -->
+                    <div class="glassmorphism rounded-2xl p-6">
+                        <div class="space-y-3">
+                            <!-- Task Item 1 -->
+                            <div class="task-item animate-in flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 priority-high">
+                                <div class="flex items-center gap-4">
+                                    <input type="checkbox" class="w-5 h-5 border-2 border-slate-600 rounded-md focus:ring-indigo-600 text-indigo-600 bg-transparent">
+                                    <div>
+                                        <h3 class="font-medium text-white">Complete project proposal</h3>
+                                        <p class="text-sm text-gray-400">Work category • Due in 2 hours</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="px-2 py-1 text-xs font-medium bg-rose-500/20 text-rose-400 rounded-md">High</span>
+                                    <button class="text-gray-400 hover:text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Task Item 2 -->
+                            <div class="task-item animate-in flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 priority-medium">
+                                <div class="flex items-center gap-4">
+                                    <input type="checkbox" class="w-5 h-5 border-2 border-slate-600 rounded-md focus:ring-indigo-600 text-indigo-600 bg-transparent">
+                                    <div>
+                                        <h3 class="font-medium text-white">Review team design mockups</h3>
+                                        <p class="text-sm text-gray-400">Work category • Due today</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="px-2 py-1 text-xs font-medium bg-amber-500/20 text-amber-400 rounded-md">Medium</span>
+                                    <button class="text-gray-400 hover:text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Task Item 3 -->
+                            <div class="task-item animate-in flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 priority-low">
+                                <div class="flex items-center gap-4">
+                                    <input type="checkbox" class="w-5 h-5 border-2 border-slate-600 rounded-md focus:ring-indigo-600 text-indigo-600 bg-transparent">
+                                    <div>
+                                        <h3 class="font-medium text-white">Daily meditation session</h3>
+                                        <p class="text-sm text-gray-400">Personal category • No deadline</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="px-2 py-1 text-xs font-medium bg-emerald-500/20 text-emerald-400 rounded-md">Low</span>
+                                    <button class="text-gray-400 hover:text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Task Item 4 (Completed) -->
+                            <div class="task-item animate-in flex items-center justify-between p-4 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                                <div class="flex items-center gap-4">
+                                    <input type="checkbox" checked class="w-5 h-5 border-2 border-slate-600 rounded-md focus:ring-indigo-600 text-indigo-600 bg-transparent">
+                                    <div>
+                                        <h3 class="font-medium text-gray-400 line-through">Update portfolio website</h3>
+                                        <p class="text-sm text-gray-500">Personal category • Completed</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="px-2 py-1 text-xs font-medium bg-gray-700/50 text-gray-400 rounded-md">Completed</span>
+                                    <button class="text-gray-500 hover:text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Task Item 5 -->
+                            <div class="task-item animate-in flex items-center justify-between p-4 rounded-xl bg-slate-800/50 border border-slate-700/50 priority-high">
+                                <div class="flex items-center gap-4">
+                                    <input type="checkbox" class="w-5 h-5 border-2 border-slate-600 rounded-md focus:ring-indigo-600 text-indigo-600 bg-transparent">
+                                    <div>
+                                        <h3 class="font-medium text-white">Submit expense reports</h3>
+                                        <p class="text-sm text-gray-400">Work category • Overdue by 2 days</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="px-2 py-1 text-xs font-medium bg-rose-500/20 text-rose-400 rounded-md">High</span>
+                                    <button class="text-gray-400 hover:text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add Task Input -->
+                        <div class="mt-6 pt-6 border-t border-gray-700/40">
+                            <div class="flex gap-4 items-center">
+                                <button class="flex items-center justify-center w-5 h-5 rounded-full border-2 border-dashed border-gray-500 text-gray-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                                <input type="text" placeholder="Add a new task..." 
+                                       class="bg-transparent border-none flex-1 focus:outline-none text-gray-300 placeholder-gray-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>

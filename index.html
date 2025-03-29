@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Design Showcase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        burgundy: {
+                            100: '#f6e7ed',
+                            200: '#eac6d2',
+                            600: '#a13f67',
+                            700: '#8d2d54',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .preview-container {
+            transform: scale(0.6);
+            transform-origin: top left;
+            width: 166.67%;
+            height: 166.67%; 
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .preview-frame {
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl font-bold text-gray-800 mb-3">UI Design Showcase</h1>
+            <p class="text-gray-600 text-lg max-w-2xl mx-auto">
+                A collection of responsive and interactive UI designs for mobile applications
+            </p>
+        </div>
+
+        <!-- Projects Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- BudgetPal Card -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover border border-gray-100">
+                <!-- Preview Section -->
+                <div class="h-72 bg-gray-50 relative overflow-hidden">
+                    <div class="absolute inset-0 preview-container">
+                        <iframe src="budgetpal.html" class="preview-frame"></iframe>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-blue-600 text-white text-xs font-medium px-2.5 py-1 rounded-full">
+                        Finance App
+                    </div>
+                </div>
+                
+                <!-- Description Section -->
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">BudgetPal</h2>
+                    <p class="text-gray-600 mb-4">
+                        A personal finance application with elegant UI for tracking expenses, managing budgets, and financial insights.
+                    </p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Tailwind CSS</span>
+                            <span class="bg-purple-100 text-purple-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Responsive</span>
+                        </div>
+                        <a href="budgetpal.html" class="text-burgundy-700 font-medium hover:text-burgundy-600 flex items-center">
+                            View Design
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TaskFlow Card -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover border border-gray-100">
+                <!-- Preview Section -->
+                <div class="h-72 bg-gray-50 relative overflow-hidden">
+                    <div class="absolute inset-0 preview-container">
+                        <iframe src="taskflow.html" class="preview-frame"></iframe>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-green-600 text-white text-xs font-medium px-2.5 py-1 rounded-full">
+                        Productivity App
+                    </div>
+                </div>
+                
+                <!-- Description Section -->
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">TaskFlow</h2>
+                    <p class="text-gray-600 mb-4">
+                        A task management application with intuitive UI for organizing projects, setting priorities, and tracking progress.
+                    </p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Tailwind CSS</span>
+                            <span class="bg-amber-100 text-amber-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Interactive</span>
+                        </div>
+                        <a href="taskflow.html" class="text-green-700 font-medium hover:text-green-600 flex items-center">
+                            View Design
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WaBulk Card -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-md card-hover border border-gray-100">
+                <!-- Preview Section -->
+                <div class="h-72 bg-gray-50 relative overflow-hidden">
+                    <div class="absolute inset-0 preview-container">
+                        <iframe src="wabulk.html" class="preview-frame"></iframe>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-teal-600 text-white text-xs font-medium px-2.5 py-1 rounded-full">
+                        Messaging App
+                    </div>
+                </div>
+                
+                <!-- Description Section -->
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">WaBulk</h2>
+                    <p class="text-gray-600 mb-4">
+                        A messaging platform UI design for bulk messaging, campaign management, and audience segmentation.
+                    </p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Tailwind CSS</span>
+                            <span class="bg-green-100 text-green-700 text-xs font-medium px-2.5 py-0.5 rounded-full">Modern UI</span>
+                        </div>
+                        <a href="wabulk.html" class="text-teal-700 font-medium hover:text-teal-600 flex items-center">
+                            View Design
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-20 text-center text-gray-500 text-sm">
+            <p>© 2025 UI Design Showcase by Amarjith TK</p>
+            <p class="mt-2">Built with Tailwind CSS</p>
+        </footer>
+    </div>
+
+    <!-- Optional JavaScript for handling iframe interaction -->
+    <script>
+        // You could add JS for interaction enhancement here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure iframes load correctly
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach(iframe => {
+                iframe.addEventListener('load', () => {
+                    console.log(`${iframe.src} loaded successfully`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

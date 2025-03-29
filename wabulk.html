@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BulkWA | WhatsApp Bulk Messenger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        whatsapp: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efad',
+                            400: '#4ade80',
+                            500: '#25D366', // WhatsApp primary
+                            600: '#16a34a',
+                            700: '#128C7E', // WhatsApp secondary
+                            800: '#075E54', // WhatsApp dark
+                            900: '#0c4a3e',
+                            950: '#052e16',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .dark .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        .slide-in {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideIn 0.5s forwards;
+        }
+        
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-float {
+            animation: float 5s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0); }
+        }
+        
+        /* Custom switch */
+        .custom-switch:checked {
+            right: 0;
+            background-color: #25D366;
+        }
+        .custom-switch:checked + .toggle-bg {
+            background-color: rgba(37, 211, 102, 0.2);
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 20px;
+        }
+        
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(107, 114, 128, 0.5);
+        }
+        
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 20%;
+            height: 200%;
+            opacity: 0;
+            transform: rotate(30deg);
+            background: linear-gradient(
+                to right, 
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 77%,
+                rgba(255, 255, 255, 0.6) 92%,
+                rgba(255, 255, 255, 0.0) 100%
+            );
+        }
+        
+        .shine-effect:hover::after {
+            opacity: 1;
+            left: 130%;
+            transition: all 0.6s ease-in-out;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-900 dark:text-gray-100 transition-colors duration-300 
+           min-h-screen bg-gray-50 dark:bg-slate-900">
+
+    <!-- Background decoration -->
+    <div class="fixed inset-0 -z-10">
+        <!-- Light mode shapes -->
+        <div class="absolute top-0 right-0 w-[35rem] h-[35rem] bg-gradient-to-b from-whatsapp-100/40 to-transparent dark:opacity-0 rounded-full blur-[100px] transform translate-x-1/4 -translate-y-1/4"></div>
+        <div class="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-gradient-to-t from-green-100/30 to-transparent dark:opacity-0 rounded-full blur-[80px] transform -translate-x-1/3 translate-y-1/4"></div>
+        
+        <!-- Dark mode shapes -->
+        <div class="absolute top-0 right-0 w-[35rem] h-[35rem] bg-gradient-to-b from-whatsapp-900/20 to-transparent opacity-0 dark:opacity-100 rounded-full blur-[100px] transform translate-x-1/4 -translate-y-1/4"></div>
+        <div class="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-gradient-to-t from-whatsapp-950/20 to-transparent opacity-0 dark:opacity-100 rounded-full blur-[80px] transform -translate-x-1/3 translate-y-1/4"></div>
+    </div>
+
+    <div class="min-h-screen flex flex-col">
+        <!-- Header -->
+        <header class="sticky top-0 z-40 bg-white/70 dark:bg-slate-900/80 backdrop-blur-lg border-b border-gray-200/70 dark:border-slate-700/30">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo -->
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-gradient-to-br from-whatsapp-500 to-whatsapp-700 shadow-lg shadow-whatsapp-500/20 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.61 14.68c-.32.1-.74.17-1.23.17-1.25 0-1.45-.59-1.5-1h-.02v-2.38h1.49v-1.35h-1.49V10.3H11c-.04 0-.08.03-.09.07-.1.31-.22.66-.27.87-.05.21-.11.51-.17.78h-.69v1.35h.68v2.38c0 .32.03 1.06.5 1.74.44.65 1.18.98 2.19.98.52 0 1.09-.13 1.37-.19l.15-.04-.06-.96zm-6.31-1.33c.27.27.71.53 1.33.53.55 0 .85-.26.85-.65 0-1.02-2.31-.65-2.31-2.05 0-1.05.83-1.3 1.5-1.3.71 0 1.06.2 1.25.3l-.18.89c-.21-.17-.49-.29-.93-.29-.31 0-.69.12-.69.54 0 .78 2.31.49 2.31 2.08 0 .87-.67 1.38-1.64 1.38-.83 0-1.45-.33-1.71-.59l.22-.84z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="font-display text-xl font-bold">BulkWA</h1>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">WhatsApp Bulk Messaging</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="flex items-center gap-3">
+                        <!-- Connection Status -->
+                        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100/80 dark:bg-amber-900/30 border border-amber-200/70 dark:border-amber-800/30">
+                            <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                            <span class="text-sm font-medium text-amber-800 dark:text-amber-400">Awaiting Connection</span>
+                        </div>
+                        
+                        <!-- Theme toggle -->
+                        <button id="theme-toggle" class="p-2 rounded-full bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700">
+                            <!-- Sun icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            
+                            <!-- Moon icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main content -->
+        <main class="flex-1 container mx-auto px-4 py-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- COLUMN 1: Connect & Recipients -->
+                <div class="space-y-6 slide-in" style="animation-delay: 100ms">
+                    <!-- QR Code Connection -->
+                    <div class="glass-card rounded-2xl overflow-hidden">
+                        <div class="px-6 py-4 bg-gradient-to-r from-whatsapp-700 to-whatsapp-800 text-white">
+                            <h2 class="font-display font-semibold">WhatsApp Connection</h2>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-amber-500 mr-2 animate-pulse"></div>
+                                    <span class="text-sm font-medium text-amber-700 dark:text-amber-400">Waiting for scan</span>
+                                </div>
+                                <button class="text-xs text-whatsapp-700 dark:text-whatsapp-500 font-medium">Help</button>
+                            </div>
+                            
+                            <!-- QR Code Area -->
+                            <div class="bg-white dark:bg-slate-800 rounded-xl p-3 border border-gray-200 dark:border-slate-700">
+                                <div class="aspect-square relative animate-float">
+                                    <!-- QR Placeholder -->
+                                    <div class="w-full h-full bg-gray-100 dark:bg-slate-700 rounded-lg flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-gray-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1v-2a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                        </svg>
+                                    </div>
+                                    
+                                    <!-- Loading Overlay -->
+                                    <div class="absolute inset-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg flex flex-col items-center justify-center">
+                                        <svg class="animate-spin h-10 w-10 text-whatsapp-500 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Generating QR Code...</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <button class="w-full py-2.5 px-4 bg-whatsapp-600 hover:bg-whatsapp-700 text-white font-medium rounded-xl transition-all shine-effect flex items-center justify-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        <span>Refresh QR Code</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <p class="text-xs text-center text-gray-500 dark:text-gray-400 mt-3">
+                                Open WhatsApp on your phone and scan the QR code
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Recipients Management -->
+                    <div class="glass-card rounded-2xl overflow-hidden">
+                        <div class="px-6 py-4 bg-gradient-to-r from-whatsapp-700 to-whatsapp-800 text-white">
+                            <h2 class="font-display font-semibold">Message Recipients</h2>
+                        </div>
+                        
+                        <div class="p-6 space-y-5">
+                            <!-- Excel/CSV Import -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="text-sm font-semibold">Excel / CSV Import</label>
+                                    <span class="text-[10px] px-1.5 py-0.5 bg-whatsapp-100 text-whatsapp-800 dark:bg-whatsapp-900/50 dark:text-whatsapp-400 rounded-full">Recommended</span>
+                                </div>
+                                
+                                <div class="relative border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl p-5 hover:border-whatsapp-500 dark:hover:border-whatsapp-500 transition-colors cursor-pointer group">
+                                    <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".xlsx,.xls,.csv">
+                                    
+                                    <div class="flex flex-col items-center">
+                                        <div class="p-3 bg-gray-100 dark:bg-slate-800 rounded-full mb-2 group-hover:bg-whatsapp-100 dark:group-hover:bg-whatsapp-900/40 transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 dark:text-gray-400 group-hover:text-whatsapp-700 dark:group-hover:text-whatsapp-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <p class="text-sm text-center text-gray-700 dark:text-gray-300 group-hover:text-whatsapp-700 dark:group-hover:text-whatsapp-400 transition-colors">
+                                            <span class="font-medium">Click to upload</span> or drag and drop
+                                        </p>
+                                        <p class="mt-1 text-xs text-center text-gray-500 dark:text-gray-400">
+                                            XLS, XLSX, or CSV with phone numbers
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Separator -->
+                            <div class="relative">
+                                <div class="absolute inset-0 flex items-center">
+                                    <div class="w-full border-t border-gray-300 dark:border-slate-600"></div>
+                                </div>
+                                <div class="relative flex justify-center">
+                                    <span class="px-2 bg-white dark:bg-slate-800 text-xs text-gray-500 dark:text-gray-400">OR</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Manual Entry -->
+                            <div>
+                                <label class="text-sm font-semibold mb-2 block">Manual Entry</label>
+                                <textarea 
+                                    class="w-full h-28 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-3 text-sm focus:border-whatsapp-500 dark:focus:border-whatsapp-500 focus:ring-2 focus:ring-whatsapp-500/20 dark:focus:ring-whatsapp-500/20 focus:outline-none transition-all resize-none" 
+                                    placeholder="+1234567890&#10;+9876543210&#10;+1122334455"></textarea>
+                                
+                                <div class="flex justify-between mt-1.5">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        One phone number per line with country code
+                                    </p>
+                                    <span class="text-xs text-whatsapp-700 dark:text-whatsapp-500 cursor-pointer hover:underline">Format Help</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Recipients Count & Validation -->
+                            <div class="bg-gray-50 dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700 rounded-xl p-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-sm font-semibold">Total Recipients</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-2xl font-semibold text-gray-900 dark:text-white">0</span>
+                                        <span class="text-xs px-2 py-1 bg-gray-200 dark:bg-slate-700 rounded-full">numbers</span>
+                                    </div>
+                                </div>
+                                
+                                <button class="w-full py-2 bg-gray-200 hover:bg-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-white font-medium rounded-xl transition-colors text-sm flex items-center justify-center gap-1.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Validate Numbers</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                <!-- COLUMN 2: Message Composer -->
+                <div class="space-y-6 slide-in" style="animation-delay: 200ms">
+                    <!-- Message Composer -->
+                    <div class="glass-card rounded-2xl overflow-hidden">
+                        <div class="px-6 py-4 bg-gradient-to-r from-whatsapp-700 to-whatsapp-800 text-white">
+                            <h2 class="font-display font-semibold">Message Composer</h2>
+                        </div>
+                        
+                        <div class="p-6 space-y-5">
+                            <!-- Text Message -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="text-sm font-semibold">Text Message</label>
+                                    <div class="flex items-center gap-1.5">
+                                        <button class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 dark:text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                            </svg>
+                                        </button>
+                                        <button class="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-500 dark:text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="relative">
+                                    <textarea 
+                                        class="w-full h-36 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-4 text-sm focus:border-whatsapp-500 dark:focus:border-whatsapp-500 focus:ring-2 focus:ring-whatsapp-500/20 dark:focus:ring-whatsapp-500/20 focus:outline-none transition-all resize-none custom-scrollbar" 
+                                        placeholder="Type your message here..."></textarea>
+                                        
+                                    <div class="absolute right-3 bottom-3 flex gap-1.5">
+                                        <button class="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-500 dark:text-gray-400 transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </button>
+                                        <button class="p-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-500 dark:text-gray-400 transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-between mt-1.5">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                                        <span class="font-medium">0/2000</span> characters
+                                    </p>
+                                    <button class="text-xs text-whatsapp-700 dark:text-whatsapp-500 hover:underline font-medium flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        WhatsApp formatting tips
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Message Template Selector -->
+                            <div class="bg-gray-50 dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700 rounded-xl p-4">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-sm font-semibold">Message Templates</span>
+                                    <button class="text-xs font-medium text-whatsapp-600 dark:text-whatsapp-500">Save as template</button>
+                                </div>
+                                
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button class="p-2 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700/80 hover:border-whatsapp-500 dark:hover:border-whatsapp-500 transition-colors text-xs text-center">
+                                        Greeting
+                                    </button>
+                                    <button class="p-2 border border-gray-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-700/80 hover:border-whatsapp-500 dark:hover:border-whatsapp-500 transition-colors text-xs text-center">
+                                        Follow Up
+                                    </button>
+                                    <button class="p-2 border border-whatsapp-500/50 dark:border-whatsapp-500/50 rounded-lg bg-whatsapp-50 dark:bg-whatsapp-900/20 hover:border-whatsapp-500 dark:hover:border-whatsapp-500 transition-colors text-xs text-center font-medium text-whatsapp-800 dark:text-whatsapp-400">
+                                        Promotion
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Media Attachments -->
+                            <div>
+                                <label class="text-sm font-semibold mb-2 block">Media Attachment</label>
+                                
+                                <div id="media-upload" class="relative border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl p-4 hover:border-whatsapp-500 dark:hover:border-whatsapp-500 transition-colors cursor-pointer group">
+                                    <input type="file" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept="image/*,video/*,audio/*">
+                                    
+                                    <div class="flex flex-col items-center py-3">
+                                        <div class="p-3 bg-gray-100 dark:bg-slate-800 rounded-full mb-2 group-hover:bg-whatsapp-100 dark:group-hover:bg-whatsapp-900/40 transition-colors">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-500 dark:text-gray-400 group-hover:text-whatsapp-700 dark:group-hover:text-whatsapp-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        <p class="text-sm text-center text-gray-700 dark:text-gray-300 group-hover:text-whatsapp-700 dark:group-hover:text-whatsapp-400 transition-colors">
+                                            <span class="font-medium">Add an image</span> to your message
+                                        </p>
+                                        <p class="mt-1 text-xs text-center text-gray-500 dark:text-gray-400">
+                                            JPG, PNG or GIF (max. 5MB)
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Uploaded Image Preview -->
+                                <div id="media-preview" class="hidden mt-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 animate-in">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">preview.jpg</span>
+                                        <button class="p-1 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-full text-gray-500 dark:text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="aspect-video bg-gray-100 dark:bg-slate-700 rounded-lg overflow-hidden">
+                                        <img src="https://via.placeholder.com/600x340" alt="Preview" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex items-center justify-between mt-2">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">2.4MB</span>
+                                        <div class="flex items-center gap-2">
+                                            <label class="flex items-center text-xs text-gray-700 dark:text-gray-300">
+                                                <input type="checkbox" class="h-3 w-3 rounded border-gray-300 text-whatsapp-600 focus:ring-whatsapp-500 dark:border-slate-500 dark:bg-slate-700">
+                                                <span class="ml-1.5">Send as caption</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mt-3">
+                                    <div class="flex gap-2">
+                                        <button class="p-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-whatsapp-500 dark:hover:border-whatsapp-500 transition-colors group">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 dark:text-gray-400 group-hover:text-whatsapp-600 dark:group-hover:text-whatsapp-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </button>
+                                        <button class="p-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-whatsapp-500 dark:hover:border-whatsapp-500 transition-colors group">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 dark:text-gray-400 group-hover:text-whatsapp-600 dark:group-hover:text-whatsapp-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414-7.072m-2.828 9.9a9 9 0 010-12.728" />
+                                            </svg>
+                                        </button>
+                                        <button class="p-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-whatsapp-500 dark:hover:border-whatsapp-500 transition-colors group">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 dark:text-gray-400 group-hover:text-whatsapp-600 dark:group-hover:text-whatsapp-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="flex items-center">
+                                        <button class="text-xs text-whatsapp-700 dark:text-whatsapp-500 font-medium flex items-center gap-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Supported formats
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Message Chain -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="text-sm font-semibold">Message Chain</label>
+                                    <button class="px-2.5 py-1 bg-whatsapp-50 dark:bg-whatsapp-900/20 text-whatsapp-800 dark:text-whatsapp-400 text-xs font-medium rounded-full flex items-center gap-1 hover:bg-whatsapp-100 dark:hover:bg-whatsapp-900/40 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        <span>Add Message</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="space-y-2">
+                                    <div class="bg-white dark:bg-slate-800 border border-whatsapp-500/30 dark:border-whatsapp-500/30 rounded-xl p-3 relative">
+                                        <div class="absolute -left-1 top-3 h-5 w-5 bg-whatsapp-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
+                                        <div class="pl-5">
+                                            <div class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Primary Message</div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">Type your message here...</p>
+                                            <div class="mt-1.5 flex items-center gap-1">
+                                                <div class="h-2 w-2 rounded-full bg-whatsapp-500"></div>
+                                                <span class="text-[10px] text-gray-500 dark:text-gray-400">Sent immediately</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 dark:bg-slate-800/60 border border-gray-200 dark:border-slate-700 rounded-xl p-3 relative opacity-60">
+                                        <div class="absolute -left-1 top-3 h-5 w-5 bg-gray-400 dark:bg-gray-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                                        <div class="pl-5">
+                                            <div class="text-xs font-medium text-gray-700 dark:text-gray-300 flex items-center gap-1 mb-1">
+                                                <span>Follow-up (inactive)</span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                            </div>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">No message added yet</p>
+                                            <div class="mt-1.5 flex items-center gap-1">
+                                                <div class="h-2 w-2 rounded-full bg-gray-400 dark:bg-gray-500"></div>
+                                                <span class="text-[10px] text-gray-500 dark:text-gray-400">Add a follow-up message (optional)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Message Preview -->
+                            <div class="border border-gray-200 dark:border-slate-700 rounded-xl p-4 bg-gray-50 dark:bg-slate-800/40">
+                                <div class="flex items-start mb-4">
+                                    <div class="bg-whatsapp-100 dark:bg-whatsapp-900/30 p-2 rounded-full mr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-whatsapp-700 dark:text-whatsapp-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-semibold">Message Preview</h3>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">See how your message will appear on WhatsApp</p>
+                                    </div>
+                                    <button class="ml-auto text-xs text-whatsapp-700 dark:text-whatsapp-500 font-medium">Preview</button>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <div class="h-8 w-8 bg-gray-200 dark:bg-slate-700 rounded-full flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-300">AJ</div>
+                                        <div class="text-xs">
+                                            <p class="font-medium text-gray-800 dark:text-gray-200">You</p>
+                                            <p class="text-gray-500 dark:text-gray-400">Today, 10:30 AM</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="h-3 w-3 bg-whatsapp-500 rounded-full animate-pulse"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                                <!-- COLUMN 3: Campaign Settings & Controls -->
+                <div class="space-y-6 slide-in" style="animation-delay: 300ms">
+                    <!-- Send Settings -->
+                    <div class="glass-card rounded-2xl overflow-hidden">
+                        <div class="px-6 py-4 bg-gradient-to-r from-whatsapp-700 to-whatsapp-800 text-white">
+                            <h2 class="font-display font-semibold">Campaign Settings</h2>
+                        </div>
+                        
+                        <div class="p-6 space-y-5">
+                            <!-- Sending Speed -->
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <label class="text-sm font-semibold">Sending Speed</label>
+                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Delay between messages</span>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Slower (safer)</span>
+                                            <span class="text-xs text-gray-500 dark:text-gray-400">Faster (risky)</span>
+                                        </div>
+                                        <div class="relative">
+                                            <div class="absolute -top-2 left-0 right-0">
+                                                <div class="flex justify-between px-1">
+                                                    <span class="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
+                                                    <span class="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
+                                                    <span class="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
+                                                    <span class="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
+                                                    <span class="w-1 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></span>
+                                                </div>
+                                            </div>
+                                            <input 
+                                                type="range" 
+                                                min="1" 
+                                                max="5" 
+                                                value="3" 
+                                                class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-whatsapp-500"
+                                            >
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <div class="p-2 bg-whatsapp-100 dark:bg-whatsapp-900/30 rounded-lg">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-whatsapp-700 dark:text-whatsapp-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium">10-15 seconds</div>
+                                                <div class="text-xs text-gray-500 dark:text-gray-400">Current delay setting</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="relative">
+                                            <select class="appearance-none bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg px-3 py-1.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-whatsapp-500/20 focus:border-whatsapp-500">
+                                                <option>5-8 seconds</option>
+                                                <option>8-10 seconds</option>
+                                                <option selected>10-15 seconds</option>
+                                                <option>15-20 seconds</option>
+                                                <option>20-30 seconds</option>
+                                            </select>
+                                            <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-lg">
+                                    <div class="flex items-start">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500 mt-0.5 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                        <p class="text-xs text-amber-800 dark:text-amber-300">
+                                            Sending too quickly may result in temporary blocking by WhatsApp. We recommend 10-15 seconds between messages.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Schedule -->
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <label class="text-sm font-semibold">Schedule Campaign</label>
+                                    <div class="relative inline-block w-10 mr-2 align-middle">
+                                        <input type="checkbox" id="schedule-toggle" class="custom-switch sr-only" />
+                                        <label for="schedule-toggle" class="toggle-bg block h-6 w-10 rounded-full border-2 border-gray-300 dark:border-slate-600 cursor-pointer transition-colors duration-200 ease-in"></label>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-3 opacity-40">
+                                    <div>
+                                        <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Start Date</label>
+                                        <div class="relative">
+                                            <input 
+                                                type="text" 
+                                                placeholder="Select date" 
+                                                disabled
+                                                class="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-whatsapp-500/20 focus:border-whatsapp-500"
+                                            >
+                                            <div class="absolute left-3 top-2.5 text-gray-500 dark:text-gray-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Start Time</label>
+                                        <div class="relative">
+                                            <input 
+                                                type="text" 
+                                                placeholder="Select time" 
+                                                disabled
+                                                class="w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-whatsapp-500/20 focus:border-whatsapp-500"
+                                            >
+                                            <div class="absolute left-3 top-2.5 text-gray-500 dark:text-gray-400">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Advanced Options -->
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <label class="text-sm font-semibold">Advanced Options</label>
+                                    <button class="flex items-center gap-1 text-xs text-whatsapp-700 dark:text-whatsapp-500">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                        <span>Expand</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <label class="flex items-center cursor-pointer">
+                                                <input type="checkbox" class="sr-only" checked>
+                                                <div class="relative w-9 h-5 bg-gray-200 dark:bg-slate-700 rounded-full">
+                                                    <div class="absolute left-1 top-1 bg-whatsapp-500 w-3 h-3 rounded-full transition-transform"></div>
+                                                </div>
+                                            </label>
+                                            <span class="text-sm">Skip failed numbers</span>
+                                        </div>
+                                        
+                                        <div>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <label class="flex items-center cursor-pointer">
+                                                <input type="checkbox" class="sr-only">
+                                                <div class="relative w-9 h-5 bg-gray-200 dark:bg-slate-700 rounded-full">
+                                                    <div class="absolute left-1 top-1 bg-gray-400 dark:bg-gray-500 w-3 h-3 rounded-full transition-transform"></div>
+                                                </div>
+                                            </label>
+                                            <span class="text-sm">Random delay variation</span>
+                                        </div>
+                                        
+                                        <div>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Campaign Execution -->
+                    <div class="glass-card rounded-2xl overflow-hidden">
+                        <div class="px-6 py-4 bg-gradient-to-r from-whatsapp-700 to-whatsapp-800 text-white">
+                            <h2 class="font-display font-semibold">Campaign Execution</h2>
+                        </div>
+                        
+                        <div class="p-6 space-y-5">
+                            <!-- Campaign Summary -->
+                            <div class="bg-gray-50 dark:bg-slate-800/80 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
+                                <h3 class="text-sm font-semibold mb-3">Campaign Summary</h3>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Recipients:</span>
+                                        <span class="text-xs font-medium text-gray-900 dark:text-white">0 contacts</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Messages:</span>
+                                        <span class="text-xs font-medium text-gray-900 dark:text-white">1 message per contact</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Estimated time:</span>
+                                        <span class="text-xs font-medium text-gray-900 dark:text-white">0 minutes</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Status:</span>
+                                        <span class="text-xs font-medium text-amber-600 dark:text-amber-400">Not ready</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 pt-3 border-t border-gray-200 dark:border-slate-700">
+                                    <div class="flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <p class="text-xs text-gray-600 dark:text-gray-300">Please add recipients and connect to WhatsApp before starting the campaign.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress -->
+                            <div>
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <h3 class="text-sm font-semibold">Campaign Progress</h3>
+                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">0%</span>
+                                </div>
+                                <div class="w-full h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-whatsapp-500 to-whatsapp-400 rounded-full" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between mt-1">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">0/0 sent</span>
+                                    <button class="text-xs font-medium text-whatsapp-700 dark:text-whatsapp-500 hover:underline" disabled>
+                                        View details
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div>
+                                <button class="w-full py-3 px-4 bg-whatsapp-500 hover:bg-whatsapp-600 disabled:bg-gray-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-medium rounded-xl transition-all shine-effect flex items-center justify-center gap-2 disabled:shine-effect-none disabled:text-gray-500 dark:disabled:text-gray-400" disabled>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Start Campaign</span>
+                                </button>
+                                
+                                <div class="grid grid-cols-2 gap-3 mt-3">
+                                    <button class="py-2.5 px-4 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:disabled:bg-slate-800/50 text-gray-700 dark:text-gray-300 disabled:text-gray-400 dark:disabled:text-gray-500 font-medium rounded-xl transition-colors disabled:cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span>Pause</span>
+                                    </button>
+                                    
+                                    <button class="py-2.5 px-4 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 dark:bg-slate-800 dark:hover:bg-slate-700 dark:disabled:bg-slate-800/50 text-gray-700 dark:text-gray-300 disabled:text-gray-400 dark:disabled:text-gray-500 font-medium rounded-xl transition-colors disabled:cursor-not-allowed flex items-center justify-center gap-1.5" disabled>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        <span>Reset</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Download Reports -->
+                            <div class="border-t border-gray-200 dark:border-slate-700 pt-5">
+                                <button class="w-full py-2.5 px-4 bg-white hover:bg-gray-50 dark:bg-slate-800 dark:hover:bg-slate-700 border border-gray-300 dark:border-slate-600 text-gray-800 dark:text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                    </svg>
+                                    <span>Download PDF Report</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Connection Status -->
+                    <div class="glass-card rounded-2xl p-4 overflow-hidden flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 rounded-full bg-amber-500 mr-2 animate-pulse"></div>
+                            <span class="text-sm">WhatsApp Connection</span>
+                        </div>
+                        
+                        <div class="flex items-center text-amber-700 dark:text-amber-400 text-xs font-medium">
+                            <span>Waiting for scan</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMN 2: Next part will be provided separately -->
+                
+                <!-- COLUMN 3: Next part will be provided separately -->
+                
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                
+                // Save preference to localStorage
+                if (document.documentElement.classList.contains('dark')) {
+                    localStorage.theme = 'dark';
+                } else {
+                    localStorage.theme = 'light';
+                }
+            });
+        }
+        
+        // On page load, check for saved theme preference
+        if (localStorage.theme === 'dark' || 
+            (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</body>
+</html>
