@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetStrike Market | Premium Fighter Jet Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        jet: {
+                            50: '#f5f7fa',
+                            100: '#e4e9f2',
+                            200: '#d1dbe8',
+                            300: '#b0c0d8',
+                            400: '#8a9dc1',
+                            500: '#6c80ad',
+                            600: '#556791',
+                            700: '#445276',
+                            800: '#3a4563',
+                            900: '#323c54',
+                            950: '#1f2536',
+                        },
+                        radar: {
+                            300: '#4ade80',
+                            400: '#22c55e',
+                            500: '#16a34a',
+                            600: '#15803d',
+                        },
+                    },
+                    keyframes: {
+                        'radar-ping': {
+                            '0%': { transform: 'scale(1)', opacity: '1' },
+                            '75%, 100%': { transform: 'scale(2)', opacity: '0' },
+                        },
+                        'flight-path': {
+                            '0%': { transform: 'translateX(0) translateY(0) rotate(0deg)' },
+                            '25%': { transform: 'translateX(10px) translateY(-15px) rotate(5deg)' },
+                            '50%': { transform: 'translateX(25px) translateY(-5px) rotate(-2deg)' },
+                            '75%': { transform: 'translateX(15px) translateY(-20px) rotate(3deg)' },
+                            '100%': { transform: 'translateX(0) translateY(0) rotate(0deg)' },
+                        }
+                    },
+                    animation: {
+                        'radar-ping': 'radar-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite',
+                        'flight-path': 'flight-path 15s ease-in-out infinite',
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glassmorphism {
+            background: rgba(31, 37, 54, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .radar-grid {
+            background-image: radial-gradient(circle, rgba(74, 222, 128, 0.2) 1px, transparent 1px),
+                             radial-gradient(circle, rgba(74, 222, 128, 0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(135deg, #1f2536 0%, #323c54 100%);
+            background-image: 
+                linear-gradient(135deg, #1f2536 0%, #323c54 100%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" width="100" height="100"/><rect fill="rgba(255,255,255,0.05)" width="1" height="1" x="0" y="0"/><rect fill="rgba(255,255,255,0.05)" width="1" height="1" x="25" y="25"/><rect fill="rgba(255,255,255,0.05)" width="1" height="1" x="50" y="50"/><rect fill="rgba(255,255,255,0.05)" width="1" height="1" x="75" y="75"/></svg>');
+        }
+        
+        .missile-hover:hover .missile-trail {
+            width: 60px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen overflow-x-hidden">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glassmorphism">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-radar-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 12h5v10l5-5v-5h5l5-5-5-5z" />
+                    </svg>
+                    <span class="font-display font-bold text-xl tracking-wider">JETSTRIKE</span>
+                </div>
+                
+                <div class="hidden md:flex space-x-8">
+                    <a href="#jets" class="font-display text-sm text-gray-300 hover:text-white transition-colors">FIGHTER JETS</a>
+                    <a href="#weaponry" class="font-display text-sm text-gray-300 hover:text-white transition-colors">ARMAMENTS</a>
+                    <a href="#test-flight" class="font-display text-sm text-gray-300 hover:text-white transition-colors">TEST FLIGHTS</a>
+                    <a href="#models" class="font-display text-sm text-gray-300 hover:text-white transition-colors">SCALE MODELS</a>
+                    <a href="#merchandise" class="font-display text-sm text-gray-300 hover:text-white transition-colors">MERCHANDISE</a>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button class="hidden md:flex items-center px-4 py-2 rounded-full bg-jet-800 hover:bg-jet-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span class="text-sm">SEARCH</span>
+                    </button>
+                    
+                    <button class="relative p-2 rounded-full bg-jet-800 hover:bg-jet-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                        </svg>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-radar-400 rounded-full"></span>
+                    </button>
+                    
+                    <button class="md:hidden p-2 rounded-full bg-jet-800 hover:bg-jet-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg pt-32 pb-24">
+        <div class="max-w-7xl mx-auto px-4 relative">
+            <div class="absolute -top-10 right-0 w-96 h-96 bg-radar-400 rounded-full filter blur-[150px] opacity-10"></div>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="z-10">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-jet-800/60 mb-6">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-radar-ping absolute inline-flex h-full w-full rounded-full bg-radar-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-radar-500"></span>
+                        </span>
+                        <span class="text-sm font-medium text-radar-300">MILITARY GRADE • PRIVATE ACCESS</span>
+                    </div>
+                    
+                    <h1 class="font-display text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                        DOMINATE THE <br/><span class="text-radar-400">SKIES</span> WITH PRECISION
+                    </h1>
+                    
+                    <p class="text-gray-300 text-lg mb-8 max-w-lg">
+                        The world's premier marketplace for decommissioned fighter jets, cutting-edge armaments, and aviation collectibles. Experience the thrill of military aviation.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#jets" class="inline-flex justify-center items-center px-8 py-4 rounded-md bg-radar-500 hover:bg-radar-600 text-white font-display font-semibold transition-colors">
+                            EXPLORE JETS
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                        
+                        <a href="#test-flight" class="inline-flex justify-center items-center px-8 py-4 rounded-md bg-transparent border-2 border-jet-400 hover:bg-jet-800/50 font-display font-semibold transition-colors">
+                            BOOK TEST FLIGHT
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <div class="absolute inset-0 radar-grid rounded-full opacity-20"></div>
+                    <div class="relative animate-flight-path">
+                        <img src="https://images.unsplash.com/photo-1584814266004-20ea3f46bb3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Fighter Jet" class="w-full h-auto rounded-lg shadow-lg shadow-jet-900/50 z-10 relative" />
+                        <div class="absolute -bottom-3 -right-3 w-24 h-24 bg-radar-400 rounded-full filter blur-[50px] opacity-60"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Featured Jets Section -->
+    <section id="jets" class="py-20 bg-gradient-to-b from-jet-950 to-black">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">
+                <div>
+                    <h2 class="font-display text-3xl font-bold mb-3">ELITE FIGHTER JETS</h2>
+                    <p class="text-gray-400 max-w-lg">Browse our collection of premium decommissioned fighter jets, fully customizable with state-of-the-art armaments and avionics.</p>
+                </div>
+                <div class="flex gap-4 mt-6 md:mt-0">
+                    <button class="p-2 rounded-full bg-jet-800 hover:bg-jet-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <button class="p-2 rounded-full bg-radar-500 hover:bg-radar-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Jet Card 1 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1452826942877-7c0791cf80ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="F-22 Raptor" class="w-full h-64 object-cover" />
+                        <div class="absolute top-4 left-4 bg-black/70 px-3 py-1 rounded-full backdrop-blur-sm">
+                            <p class="text-xs font-display font-semibold">F-22 RAPTOR</p>
+                        </div>
+                        <div class="absolute bottom-4 right-4 flex gap-2">
+                            <span class="bg-radar-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">STEALTH</span>
+                            <span class="bg-blue-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">SUPERSONIC</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-display text-xl font-bold">F-22 Raptor</h3>
+                                <p class="text-gray-400 text-sm">Air Superiority Fighter</p>
+                            </div>
+                            <div class="bg-jet-800 px-3 py-1 rounded-lg">
+                                <p class="text-radar-400 font-display font-bold">$68.5M</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">MAX SPEED</p>
+                                <p class="font-semibold">Mach 2.25</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">RANGE</p>
+                                <p class="font-semibold">3,000 km</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">WEAPONS</p>
+                                <p class="font-semibold">8 Hardpoints</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">CONDITION</p>
+                                <p class="font-semibold">Excellent</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button class="flex-1 py-3 rounded-lg bg-radar-500 hover:bg-radar-600 font-display font-medium transition-colors">VIEW DETAILS</button>
+                            <button class="p-3 rounded-lg bg-jet-800 hover:bg-jet-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Jet Card 2 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1666337553695-c443a5f93898?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="F-35 Lightning II" class="w-full h-64 object-cover" />
+                        <div class="absolute top-4 left-4 bg-black/70 px-3 py-1 rounded-full backdrop-blur-sm">
+                            <p class="text-xs font-display font-semibold">F-35 LIGHTNING II</p>
+                        </div>
+                        <div class="absolute bottom-4 right-4 flex gap-2">
+                            <span class="bg-radar-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">VTOL</span>
+                            <span class="bg-purple-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">MULTI-ROLE</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-display text-xl font-bold">F-35 Lightning II</h3>
+                                <p class="text-gray-400 text-sm">Multi-role Combat Aircraft</p>
+                            </div>
+                            <div class="bg-jet-800 px-3 py-1 rounded-lg">
+                                <p class="text-radar-400 font-display font-bold">$78.3M</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">MAX SPEED</p>
+                                <p class="font-semibold">Mach 1.6</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">RANGE</p>
+                                <p class="font-semibold">2,800 km</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">WEAPONS</p>
+                                <p class="font-semibold">10 Hardpoints</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">CONDITION</p>
+                                <p class="font-semibold">Like New</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button class="flex-1 py-3 rounded-lg bg-radar-500 hover:bg-radar-600 font-display font-medium transition-colors">VIEW DETAILS</button>
+                            <button class="p-3 rounded-lg bg-jet-800 hover:bg-jet-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Jet Card 3 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1623434555392-e4cd186cb459?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Su-57 Felon" class="w-full h-64 object-cover" />
+                        <div class="absolute top-4 left-4 bg-black/70 px-3 py-1 rounded-full backdrop-blur-sm">
+                            <p class="text-xs font-display font-semibold">SU-57 FELON</p>
+                        </div>
+                        <div class="absolute bottom-4 right-4 flex gap-2">
+                            <span class="bg-amber-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">STEALTH</span>
+                            <span class="bg-red-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">SUPERMANEUVERABLE</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-display text-xl font-bold">Su-57 Felon</h3>
+                                <p class="text-gray-400 text-sm">Stealth Air Superiority</p>
+                            </div>
+                            <div class="bg-jet-800 px-3 py-1 rounded-lg">
+                                <p class="text-radar-400 font-display font-bold">$65.2M</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">MAX SPEED</p>
+                                <p class="font-semibold">Mach 2.0</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">RANGE</p>
+                                <p class="font-semibold">3,500 km</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">WEAPONS</p>
+                                <p class="font-semibold">12 Hardpoints</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">CONDITION</p>
+                                <p class="font-semibold">Refurbished</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button class="flex-1 py-3 rounded-lg bg-radar-500 hover:bg-radar-600 font-display font-medium transition-colors">VIEW DETAILS</button>
+                            <button class="p-3 rounded-lg bg-jet-800 hover:bg-jet-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-10 flex justify-center">
+                <button class="group px-8 py-4 rounded-md border border-jet-700 hover:border-radar-500 font-display font-semibold transition-all">
+                    VIEW ALL JETS
+                    <span class="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Armaments Section -->
+    <section id="weaponry" class="py-20 bg-black">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">
+                <div>
+                    <h2 class="font-display text-3xl font-bold mb-3">ADVANCED ARMAMENTS</h2>
+                    <p class="text-gray-400 max-w-lg">Customize your aircraft with precision-guided missiles, smart bombs, and state-of-the-art targeting systems.</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Missiles Showcase -->
+                <div class="col-span-2 bg-gradient-to-br from-jet-900 to-jet-950 rounded-xl p-8 border border-jet-800">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                        <h3 class="font-display text-2xl font-bold">Precision Missiles</h3>
+                        <div class="inline-flex mt-4 md:mt-0 space-x-2">
+                            <button class="px-4 py-2 rounded-full bg-jet-800 text-sm">Air-to-Air</button>
+                            <button class="px-4 py-2 rounded-full bg-jet-800 text-sm">Air-to-Ground</button>
+                            <button class="px-4 py-2 rounded-full bg-radar-500 text-sm">All Types</button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Missile 1 -->
+                        <div class="flex items-center bg-jet-800/50 rounded-xl p-4 missile-hover transition-all hover:bg-jet-800">
+                            <div class="h-20 w-20 bg-jet-700 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-radar-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M22 2L12 12M22 2L17 22L12 12M22 2L2 7L12 12" />
+                                </svg>
+                                <div class="missile-trail absolute top-1/2 -right-2 h-1 w-10 bg-gradient-to-l from-transparent to-radar-400 rounded transform -translate-y-1/2 opacity-30 transition-all duration-300"></div>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-semibold">AMRAAM AIM-120D</h4>
+                                <p class="text-gray-400 text-sm mb-2">Medium-range air-to-air missile with active radar homing</p>
+                                <div class="flex items-center">
+                                    <p class="text-radar-400 font-bold">$1.2M</p>
+                                    <button class="ml-auto px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Missile 2 -->
+                        <div class="flex items-center bg-jet-800/50 rounded-xl p-4 missile-hover transition-all hover:bg-jet-800">
+                            <div class="h-20 w-20 bg-jet-700 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M5 22h14M5 22v-6M19 22v-6M12 2v7M12 9L4 18M12 9l8 9" />
+                                </svg>
+                                <div class="missile-trail absolute top-1/2 -right-2 h-1 w-10 bg-gradient-to-l from-transparent to-amber-400 rounded transform -translate-y-1/2 opacity-30 transition-all duration-300"></div>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-semibold">AGM-65 Maverick</h4>
+                                <p class="text-gray-400 text-sm mb-2">Air-to-surface tactical missile with precision guidance</p>
+                                <div class="flex items-center">
+                                    <p class="text-radar-400 font-bold">$950K</p>
+                                    <button class="ml-auto px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Missile 3 -->
+                        <div class="flex items-center bg-jet-800/50 rounded-xl p-4 missile-hover transition-all hover:bg-jet-800">
+                            <div class="h-20 w-20 bg-jet-700 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 2v12M12 14l-8 8M12 14l8 8" />
+                                </svg>
+                                <div class="missile-trail absolute top-1/2 -right-2 h-1 w-10 bg-gradient-to-l from-transparent to-blue-400 rounded transform -translate-y-1/2 opacity-30 transition-all duration-300"></div>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-semibold">Python-5</h4>
+                                <p class="text-gray-400 text-sm mb-2">Short-range air-to-air missile with IR guidance</p>
+                                <div class="flex items-center">
+                                    <p class="text-radar-400 font-bold">$875K</p>
+                                    <button class="ml-auto px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Missile 4 -->
+                        <div class="flex items-center bg-jet-800/50 rounded-xl p-4 missile-hover transition-all hover:bg-jet-800">
+                            <div class="h-20 w-20 bg-jet-700 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 2v6M12 8H2l10 14 10-14H12z" />
+                                </svg>
+                                <div class="missile-trail absolute top-1/2 -right-2 h-1 w-10 bg-gradient-to-l from-transparent to-purple-400 rounded transform -translate-y-1/2 opacity-30 transition-all duration-300"></div>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-semibold">Storm Shadow</h4>
+                                <p class="text-gray-400 text-sm mb-2">Long-range air-launched cruise missile system</p>
+                                <div class="flex items-center">
+                                    <p class="text-radar-400 font-bold">$1.8M</p>
+                                    <button class="ml-auto px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Targeting Systems -->
+                <div class="bg-gradient-to-br from-jet-900 to-jet-950 rounded-xl p-8 border border-jet-800">
+                    <h3 class="font-display text-2xl font-bold mb-6">Targeting Systems</h3>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-jet-800/50 rounded-xl p-5 transition-all hover:bg-jet-800">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-jet-700 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-radar-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <circle cx="12" cy="12" r="6"></circle>
+                                        <circle cx="12" cy="12" r="2"></circle>
+                                    </svg>
+                                </div>
+                                <span class="bg-radar-500/20 text-radar-400 text-xs font-medium px-2.5 py-1 rounded">TOP SELLER</span>
+                            </div>
+                            <h4 class="font-display font-semibold mb-1">AN/APG-81 AESA Radar</h4>
+                            <p class="text-gray-400 text-sm mb-4">Active electronically scanned array radar system</p>
+                            <div class="flex justify-between items-center">
+                                <p class="text-radar-400 font-bold">$4.5M</p>
+                                <button class="px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-jet-800/50 rounded-xl p-5 transition-all hover:bg-jet-800">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-jet-700 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h4 class="font-display font-semibold mb-1">EOTS Targeting System</h4>
+                            <p class="text-gray-400 text-sm mb-4">Advanced electro-optical targeting system</p>
+                            <div class="flex justify-between items-center">
+                                <p class="text-radar-400 font-bold">$3.2M</p>
+                                <button class="px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-jet-800/50 rounded-xl p-5 transition-all hover:bg-jet-800">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-jet-700 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h4 class="font-display font-semibold mb-1">JHMCS Helmet System</h4>
+                            <p class="text-gray-400 text-sm mb-4">Joint Helmet Mounted Cueing System</p>
+                            <div class="flex justify-between items-center">
+                                <p class="text-radar-400 font-bold">$1.1M</p>
+                                <button class="px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-10 flex justify-center">
+                <button class="group px-8 py-4 rounded-md border border-jet-700 hover:border-radar-500 font-display font-semibold transition-all">
+                    VIEW ALL ARMAMENTS
+                    <span class="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Test Flight Section -->
+    <section id="test-flight" class="py-20 bg-gradient-to-b from-black to-jet-950 relative">
+        <div class="absolute inset-0 overflow-hidden opacity-20">
+            <div class="radar-grid w-full h-full"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 relative">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-3xl font-bold mb-4">EXPERIENCE THE THRILL</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Book a supervised test flight experience with a certified pilot instructor and feel the power of these magnificent machines.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Experience Card 1 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="h-48 bg-jet-800 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1534870439272-475575042b61?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Basic Flight Experience" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-jet-950 to-transparent h-1/2"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-display text-xl font-bold">Basic Flight</h3>
+                            <div class="bg-jet-800 px-3 py-1 rounded-lg">
+                                <p class="text-radar-400 font-display font-bold">$12,500</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-400 text-sm mb-4">Experience basic maneuvers and get a taste of fighter jet capabilities with a 30-minute flight.</p>
+                        
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">30 Minute Flight</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">Basic Aerobatics</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">4G Experience</span>
+                            </li>
+                            <li class="flex items-center opacity-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                <span class="text-sm">Weapons Systems</span>
+                            </li>
+                        </ul>
+                        
+                        <button class="w-full py-3 rounded-lg bg-jet-800 hover:bg-radar-500 font-display font-medium transition-colors">BOOK EXPERIENCE</button>
+                    </div>
+                </div>
+                
+                <!-- Experience Card 2 -->
+                <div class="bg-gradient-to-br from-jet-900 to-jet-950 rounded-xl overflow-hidden border-2 border-radar-500 shadow-lg shadow-radar-500/10 relative z-10 transform lg:-translate-y-4">
+                    <div class="absolute top-0 right-0 bg-radar-500 text-white font-display font-medium text-sm py-1 px-4 rounded-bl-lg">
+                        MOST POPULAR
+                    </div>
+                    
+                    <div class="h-48 bg-jet-800 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1578375772382-4e61a16dccc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Advanced Flight Experience" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-jet-950 to-transparent h-1/2"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-display text-xl font-bold">Advanced Flight</h3>
+                            <div class="bg-radar-500 px-3 py-1 rounded-lg">
+                                <p class="text-white font-display font-bold">$25,000</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-300 text-sm mb-4">Full 60-minute combat training scenario with advanced maneuvers and systems operation.</p>
+                        
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">60 Minute Flight</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">Advanced Aerobatics</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">7G Experience</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">Weapons Systems Training</span>
+                            </li>
+                        </ul>
+                        
+                        <button class="w-full py-3 rounded-lg bg-radar-500 hover:bg-radar-600 font-display font-medium transition-colors">BOOK EXPERIENCE</button>
+                    </div>
+                </div>
+                
+                <!-- Experience Card 3 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="h-48 bg-jet-800 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1563302905-4a2f757e6ae7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Elite Combat Experience" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-jet-950 to-transparent h-1/2"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-display text-xl font-bold">Elite Combat</h3>
+                            <div class="bg-jet-800 px-3 py-1 rounded-lg">
+                                <p class="text-radar-400 font-display font-bold">$45,000</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-400 text-sm mb-4">Full day experience with multiple flights, dogfight scenarios, and virtual weapons deployment.</p>
+                        
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">Full Day Program</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">2x Combat Flights</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">9G Experience</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">Combat Simulation</span>
+                            </li>
+                        </ul>
+                        
+                        <button class="w-full py-3 rounded-lg bg-jet-800 hover:bg-radar-500 font-display font-medium transition-colors">BOOK EXPERIENCE</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Merchandise Section -->
+    <section id="merchandise" class="py-20 bg-black">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col lg:flex-row gap-16 items-center">
+                <div class="lg:w-1/2">
+                    <h2 class="font-display text-3xl font-bold mb-4">PILOT GEAR & MERCHANDISE</h2>
+                    <p class="text-gray-400 mb-6">Authentic aviation gear, flight suits, and collectibles for aviation enthusiasts and professionals alike.</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="flex items-center bg-jet-900 rounded-xl p-4 transition-colors hover:bg-jet-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-radar-400 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5z"></path>
+                                <line x1="16" y1="8" x2="2" y2="22"></line>
+                                <line x1="17.5" y1="15" x2="9" y2="15"></line>
+                            </svg>
+                            <span>Flight Suits</span>
+                        </div>
+                        
+                        <div class="flex items-center bg-jet-900 rounded-xl p-4 transition-colors hover:bg-jet-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-radar-400 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"></path>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                            </svg>
+                            <span>Scale Models</span>
+                        </div>
+                        
+                        <div class="flex items-center bg-jet-900 rounded-xl p-4 transition-colors hover:bg-jet-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-radar-400 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="16"></line>
+                                <line x1="8" y1="12" x2="16" y2="12"></line>
+                            </svg>
+                            <span>Pilot Helmets</span>
+                        </div>
+                        
+                        <div class="flex items-center bg-jet-900 rounded-xl p-4 transition-colors hover:bg-jet-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-radar-400 mr-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                            </svg>
+                            <span>Aviation Books</span>
+                        </div>
+                    </div>
+                    
+                    <button class="group px-8 py-4 rounded-md bg-radar-500 hover:bg-radar-600 font-display font-semibold transition-all flex items-center">
+                        VIEW MERCHANDISE SHOP
+                        <span class="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>
+                    </button>
+                </div>
+                
+                <div class="lg:w-1/2">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-6">
+                            <div class="bg-jet-900 rounded-xl overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1521731192898-9c6abb70d4da?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Pilot Helmet" class="w-full h-48 object-cover" />
+                            </div>
+                            <div class="bg-jet-900 rounded-xl overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1627646419611-fe4c9d8b7946?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Scale Model" class="w-full h-64 object-cover" />
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-jet-900 rounded-xl overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1605851868183-7a4de52117fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Flight Jacket" class="w-full h-64 object-cover" />
+                            </div>
+                            <div class="bg-jet-900 rounded-xl overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1622040806062-7d4cd6539848?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="Aviation Books" class="w-full h-48 object-cover" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Scale Models Section -->
+    <section id="models" class="py-20 bg-jet-950">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-3xl font-bold mb-4">PRECISION SCALE MODELS</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Museum-quality replicas of the world's most iconic fighter jets, meticulously crafted to exact specifications.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Model 1 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="h-48 bg-jet-800 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1608734265656-f035d3e7bcbf?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" alt="F-22 Scale Model" class="w-full h-full object-cover" />
+                    <!-- filepath: /home/starwalker/codespace-mongi/ui-designs/fighterjet.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetStrike Market | Premium Fighter Jet Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    },
+                    colors: {
+                        jet: {
+                            50: '#f5f7fa',
+                            100: '#e4e9f2',
+                            200: '#d1dbe8',
+                            300: '#b0c0d8',
+                            400: '#8a9dc1',
+                            500: '#6c80ad',
+                            600: '#556791',
+                            700: '#445276',
+                            800: '#3a4563',
+                            900: '#323c54',
+                            950: '#1f2536',
+                        },
+                        radar: {
+                            300: '#4ade80',
+                            400: '#22c55e',
+                            500: '#16a34a',
+                            600: '#15803d',
+                        },
+                    },
+                    keyframes: {
+                        'radar-ping': {
+                            '0%': { transform: 'scale(1)', opacity: '1' },
+                            '75%, 100%': { transform: 'scale(2)', opacity: '0' },
+                        },
+                        'flight-path': {
+                            '0%': { transform: 'translateX(0) translateY(0) rotate(0deg)' },
+                            '25%': { transform: 'translateX(10px) translateY(-15px) rotate(5deg)' },
+                            '50%': { transform: 'translateX(25px) translateY(-5px) rotate(-2deg)' },
+                            '75%': { transform: 'translateX(15px) translateY(-20px) rotate(3deg)' },
+                            '100%': { transform: 'translateX(0) translateY(0) rotate(0deg)' },
+                        }
+                    },
+                    animation: {
+                        'radar-ping': 'radar-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite',
+                        'flight-path': 'flight-path 15s ease-in-out infinite',
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .glassmorphism {
+            background: rgba(31, 37, 54, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .radar-grid {
+            background-image: radial-gradient(circle, rgba(74, 222, 128, 0.2) 1px, transparent 1px),
+                             radial-gradient(circle, rgba(74, 222, 128, 0.15) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(135deg, #1f2536 0%, #323c54 100%);
+            background-image: 
+                linear-gradient(135deg, #1f2536 0%, #323c54 100%),
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="none" width="100" height="100"/><rect fill="rgba(255,255,255,0.05)" width="1" height="1" x="0" y="0"/><rect fill="rgba(255,255,255,0.05)" width="1" height="1" x="25" y="25"/><rect fill="rgba(255,255,255,0.05)" width="1" height="1" x="50" y="50"/><rect fill="rgba(255,255,255,0.05)" width="1" height="1" x="75" y="75"/></svg>');
+        }
+        
+        .missile-hover:hover .missile-trail {
+            width: 60px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen overflow-x-hidden">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glassmorphism">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-radar-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 12h5v10l5-5v-5h5l5-5-5-5z" />
+                    </svg>
+                    <span class="font-display font-bold text-xl tracking-wider">JETSTRIKE</span>
+                </div>
+                
+                <div class="hidden md:flex space-x-8">
+                    <a href="#jets" class="font-display text-sm text-gray-300 hover:text-white transition-colors">FIGHTER JETS</a>
+                    <a href="#weaponry" class="font-display text-sm text-gray-300 hover:text-white transition-colors">ARMAMENTS</a>
+                    <a href="#test-flight" class="font-display text-sm text-gray-300 hover:text-white transition-colors">TEST FLIGHTS</a>
+                    <a href="#models" class="font-display text-sm text-gray-300 hover:text-white transition-colors">SCALE MODELS</a>
+                    <a href="#merchandise" class="font-display text-sm text-gray-300 hover:text-white transition-colors">MERCHANDISE</a>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <button class="hidden md:flex items-center px-4 py-2 rounded-full bg-jet-800 hover:bg-jet-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <span class="text-sm">SEARCH</span>
+                    </button>
+                    
+                    <button class="relative p-2 rounded-full bg-jet-800 hover:bg-jet-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                        </svg>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-radar-400 rounded-full"></span>
+                    </button>
+                    
+                    <button class="md:hidden p-2 rounded-full bg-jet-800 hover:bg-jet-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg pt-32 pb-24">
+        <div class="max-w-7xl mx-auto px-4 relative">
+            <div class="absolute -top-10 right-0 w-96 h-96 bg-radar-400 rounded-full filter blur-[150px] opacity-10"></div>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="z-10">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-jet-800/60 mb-6">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-radar-ping absolute inline-flex h-full w-full rounded-full bg-radar-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-radar-500"></span>
+                        </span>
+                        <span class="text-sm font-medium text-radar-300">MILITARY GRADE • PRIVATE ACCESS</span>
+                    </div>
+                    
+                    <h1 class="font-display text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                        DOMINATE THE <br/><span class="text-radar-400">SKIES</span> WITH PRECISION
+                    </h1>
+                    
+                    <p class="text-gray-300 text-lg mb-8 max-w-lg">
+                        The world's premier marketplace for decommissioned fighter jets, cutting-edge armaments, and aviation collectibles. Experience the thrill of military aviation.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#jets" class="inline-flex justify-center items-center px-8 py-4 rounded-md bg-radar-500 hover:bg-radar-600 text-white font-display font-semibold transition-colors">
+                            EXPLORE JETS
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                        
+                        <a href="#test-flight" class="inline-flex justify-center items-center px-8 py-4 rounded-md bg-transparent border-2 border-jet-400 hover:bg-jet-800/50 font-display font-semibold transition-colors">
+                            BOOK TEST FLIGHT
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <div class="absolute inset-0 radar-grid rounded-full opacity-20"></div>
+                    <div class="relative animate-flight-path">
+                        <img src="https://images.unsplash.com/photo-1584814266004-20ea3f46bb3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Fighter Jet" class="w-full h-auto rounded-lg shadow-lg shadow-jet-900/50 z-10 relative" />
+                        <div class="absolute -bottom-3 -right-3 w-24 h-24 bg-radar-400 rounded-full filter blur-[50px] opacity-60"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Featured Jets Section -->
+    <section id="jets" class="py-20 bg-gradient-to-b from-jet-950 to-black">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">
+                <div>
+                    <h2 class="font-display text-3xl font-bold mb-3">ELITE FIGHTER JETS</h2>
+                    <p class="text-gray-400 max-w-lg">Browse our collection of premium decommissioned fighter jets, fully customizable with state-of-the-art armaments and avionics.</p>
+                </div>
+                <div class="flex gap-4 mt-6 md:mt-0">
+                    <button class="p-2 rounded-full bg-jet-800 hover:bg-jet-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M15 18l-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <button class="p-2 rounded-full bg-radar-500 hover:bg-radar-600 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Jet Card 1 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1452826942877-7c0791cf80ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="F-22 Raptor" class="w-full h-64 object-cover" />
+                        <div class="absolute top-4 left-4 bg-black/70 px-3 py-1 rounded-full backdrop-blur-sm">
+                            <p class="text-xs font-display font-semibold">F-22 RAPTOR</p>
+                        </div>
+                        <div class="absolute bottom-4 right-4 flex gap-2">
+                            <span class="bg-radar-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">STEALTH</span>
+                            <span class="bg-blue-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">SUPERSONIC</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-display text-xl font-bold">F-22 Raptor</h3>
+                                <p class="text-gray-400 text-sm">Air Superiority Fighter</p>
+                            </div>
+                            <div class="bg-jet-800 px-3 py-1 rounded-lg">
+                                <p class="text-radar-400 font-display font-bold">$68.5M</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">MAX SPEED</p>
+                                <p class="font-semibold">Mach 2.25</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">RANGE</p>
+                                <p class="font-semibold">3,000 km</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">WEAPONS</p>
+                                <p class="font-semibold">8 Hardpoints</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">CONDITION</p>
+                                <p class="font-semibold">Excellent</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button class="flex-1 py-3 rounded-lg bg-radar-500 hover:bg-radar-600 font-display font-medium transition-colors">VIEW DETAILS</button>
+                            <button class="p-3 rounded-lg bg-jet-800 hover:bg-jet-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Jet Card 2 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1666337553695-c443a5f93898?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="F-35 Lightning II" class="w-full h-64 object-cover" />
+                        <div class="absolute top-4 left-4 bg-black/70 px-3 py-1 rounded-full backdrop-blur-sm">
+                            <p class="text-xs font-display font-semibold">F-35 LIGHTNING II</p>
+                        </div>
+                        <div class="absolute bottom-4 right-4 flex gap-2">
+                            <span class="bg-radar-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">VTOL</span>
+                            <span class="bg-purple-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">MULTI-ROLE</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-display text-xl font-bold">F-35 Lightning II</h3>
+                                <p class="text-gray-400 text-sm">Multi-role Combat Aircraft</p>
+                            </div>
+                            <div class="bg-jet-800 px-3 py-1 rounded-lg">
+                                <p class="text-radar-400 font-display font-bold">$78.3M</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">MAX SPEED</p>
+                                <p class="font-semibold">Mach 1.6</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">RANGE</p>
+                                <p class="font-semibold">2,800 km</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">WEAPONS</p>
+                                <p class="font-semibold">10 Hardpoints</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">CONDITION</p>
+                                <p class="font-semibold">Like New</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button class="flex-1 py-3 rounded-lg bg-radar-500 hover:bg-radar-600 font-display font-medium transition-colors">VIEW DETAILS</button>
+                            <button class="p-3 rounded-lg bg-jet-800 hover:bg-jet-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Jet Card 3 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1623434555392-e4cd186cb459?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Su-57 Felon" class="w-full h-64 object-cover" />
+                        <div class="absolute top-4 left-4 bg-black/70 px-3 py-1 rounded-full backdrop-blur-sm">
+                            <p class="text-xs font-display font-semibold">SU-57 FELON</p>
+                        </div>
+                        <div class="absolute bottom-4 right-4 flex gap-2">
+                            <span class="bg-amber-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">STEALTH</span>
+                            <span class="bg-red-500/90 px-3 py-1 rounded-full text-xs backdrop-blur-sm">SUPERMANEUVERABLE</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-display text-xl font-bold">Su-57 Felon</h3>
+                                <p class="text-gray-400 text-sm">Stealth Air Superiority</p>
+                            </div>
+                            <div class="bg-jet-800 px-3 py-1 rounded-lg">
+                                <p class="text-radar-400 font-display font-bold">$65.2M</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">MAX SPEED</p>
+                                <p class="font-semibold">Mach 2.0</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">RANGE</p>
+                                <p class="font-semibold">3,500 km</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">WEAPONS</p>
+                                <p class="font-semibold">12 Hardpoints</p>
+                            </div>
+                            <div class="bg-jet-800/50 rounded-lg p-3">
+                                <p class="text-xs text-gray-400 mb-1">CONDITION</p>
+                                <p class="font-semibold">Refurbished</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-3">
+                            <button class="flex-1 py-3 rounded-lg bg-radar-500 hover:bg-radar-600 font-display font-medium transition-colors">VIEW DETAILS</button>
+                            <button class="p-3 rounded-lg bg-jet-800 hover:bg-jet-700 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-10 flex justify-center">
+                <button class="group px-8 py-4 rounded-md border border-jet-700 hover:border-radar-500 font-display font-semibold transition-all">
+                    VIEW ALL JETS
+                    <span class="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Armaments Section -->
+    <section id="weaponry" class="py-20 bg-black">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12">
+                <div>
+                    <h2 class="font-display text-3xl font-bold mb-3">ADVANCED ARMAMENTS</h2>
+                    <p class="text-gray-400 max-w-lg">Customize your aircraft with precision-guided missiles, smart bombs, and state-of-the-art targeting systems.</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Missiles Showcase -->
+                <div class="col-span-2 bg-gradient-to-br from-jet-900 to-jet-950 rounded-xl p-8 border border-jet-800">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                        <h3 class="font-display text-2xl font-bold">Precision Missiles</h3>
+                        <div class="inline-flex mt-4 md:mt-0 space-x-2">
+                            <button class="px-4 py-2 rounded-full bg-jet-800 text-sm">Air-to-Air</button>
+                            <button class="px-4 py-2 rounded-full bg-jet-800 text-sm">Air-to-Ground</button>
+                            <button class="px-4 py-2 rounded-full bg-radar-500 text-sm">All Types</button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Missile 1 -->
+                        <div class="flex items-center bg-jet-800/50 rounded-xl p-4 missile-hover transition-all hover:bg-jet-800">
+                            <div class="h-20 w-20 bg-jet-700 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-radar-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M22 2L12 12M22 2L17 22L12 12M22 2L2 7L12 12" />
+                                </svg>
+                                <div class="missile-trail absolute top-1/2 -right-2 h-1 w-10 bg-gradient-to-l from-transparent to-radar-400 rounded transform -translate-y-1/2 opacity-30 transition-all duration-300"></div>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-semibold">AMRAAM AIM-120D</h4>
+                                <p class="text-gray-400 text-sm mb-2">Medium-range air-to-air missile with active radar homing</p>
+                                <div class="flex items-center">
+                                    <p class="text-radar-400 font-bold">$1.2M</p>
+                                    <button class="ml-auto px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Missile 2 -->
+                        <div class="flex items-center bg-jet-800/50 rounded-xl p-4 missile-hover transition-all hover:bg-jet-800">
+                            <div class="h-20 w-20 bg-jet-700 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M5 22h14M5 22v-6M19 22v-6M12 2v7M12 9L4 18M12 9l8 9" />
+                                </svg>
+                                <div class="missile-trail absolute top-1/2 -right-2 h-1 w-10 bg-gradient-to-l from-transparent to-amber-400 rounded transform -translate-y-1/2 opacity-30 transition-all duration-300"></div>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-semibold">AGM-65 Maverick</h4>
+                                <p class="text-gray-400 text-sm mb-2">Air-to-surface tactical missile with precision guidance</p>
+                                <div class="flex items-center">
+                                    <p class="text-radar-400 font-bold">$950K</p>
+                                    <button class="ml-auto px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Missile 3 -->
+                        <div class="flex items-center bg-jet-800/50 rounded-xl p-4 missile-hover transition-all hover:bg-jet-800">
+                            <div class="h-20 w-20 bg-jet-700 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 2v12M12 14l-8 8M12 14l8 8" />
+                                </svg>
+                                <div class="missile-trail absolute top-1/2 -right-2 h-1 w-10 bg-gradient-to-l from-transparent to-blue-400 rounded transform -translate-y-1/2 opacity-30 transition-all duration-300"></div>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-semibold">Python-5</h4>
+                                <p class="text-gray-400 text-sm mb-2">Short-range air-to-air missile with IR guidance</p>
+                                <div class="flex items-center">
+                                    <p class="text-radar-400 font-bold">$875K</p>
+                                    <button class="ml-auto px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Missile 4 -->
+                        <div class="flex items-center bg-jet-800/50 rounded-xl p-4 missile-hover transition-all hover:bg-jet-800">
+                            <div class="h-20 w-20 bg-jet-700 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 relative">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 2v6M12 8H2l10 14 10-14H12z" />
+                                </svg>
+                                <div class="missile-trail absolute top-1/2 -right-2 h-1 w-10 bg-gradient-to-l from-transparent to-purple-400 rounded transform -translate-y-1/2 opacity-30 transition-all duration-300"></div>
+                            </div>
+                            <div>
+                                <h4 class="font-display font-semibold">Storm Shadow</h4>
+                                <p class="text-gray-400 text-sm mb-2">Long-range air-launched cruise missile system</p>
+                                <div class="flex items-center">
+                                    <p class="text-radar-400 font-bold">$1.8M</p>
+                                    <button class="ml-auto px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Targeting Systems -->
+                <div class="bg-gradient-to-br from-jet-900 to-jet-950 rounded-xl p-8 border border-jet-800">
+                    <h3 class="font-display text-2xl font-bold mb-6">Targeting Systems</h3>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-jet-800/50 rounded-xl p-5 transition-all hover:bg-jet-800">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-jet-700 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-radar-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <circle cx="12" cy="12" r="6"></circle>
+                                        <circle cx="12" cy="12" r="2"></circle>
+                                    </svg>
+                                </div>
+                                <span class="bg-radar-500/20 text-radar-400 text-xs font-medium px-2.5 py-1 rounded">TOP SELLER</span>
+                            </div>
+                            <h4 class="font-display font-semibold mb-1">AN/APG-81 AESA Radar</h4>
+                            <p class="text-gray-400 text-sm mb-4">Active electronically scanned array radar system</p>
+                            <div class="flex justify-between items-center">
+                                <p class="text-radar-400 font-bold">$4.5M</p>
+                                <button class="px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-jet-800/50 rounded-xl p-5 transition-all hover:bg-jet-800">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-jet-700 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                </div>
+                            </div>
+                            <h4 class="font-display font-semibold mb-1">EOTS Targeting System</h4>
+                            <p class="text-gray-400 text-sm mb-4">Advanced electro-optical targeting system</p>
+                            <div class="flex justify-between items-center">
+                                <p class="text-radar-400 font-bold">$3.2M</p>
+                                <button class="px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-jet-800/50 rounded-xl p-5 transition-all hover:bg-jet-800">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-jet-700 rounded-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <h4 class="font-display font-semibold mb-1">JHMCS Helmet System</h4>
+                            <p class="text-gray-400 text-sm mb-4">Joint Helmet Mounted Cueing System</p>
+                            <div class="flex justify-between items-center">
+                                <p class="text-radar-400 font-bold">$1.1M</p>
+                                <button class="px-3 py-1 bg-jet-900 hover:bg-jet-800 rounded text-xs transition-colors">ADD TO CART</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-10 flex justify-center">
+                <button class="group px-8 py-4 rounded-md border border-jet-700 hover:border-radar-500 font-display font-semibold transition-all">
+                    VIEW ALL ARMAMENTS
+                    <span class="inline-block ml-2 transition-transform group-hover:translate-x-1">→</span>
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Test Flight Section -->
+    <section id="test-flight" class="py-20 bg-gradient-to-b from-black to-jet-950 relative">
+        <div class="absolute inset-0 overflow-hidden opacity-20">
+            <div class="radar-grid w-full h-full"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 relative">
+            <div class="text-center mb-16">
+                <h2 class="font-display text-3xl font-bold mb-4">EXPERIENCE THE THRILL</h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">Book a supervised test flight experience with a certified pilot instructor and feel the power of these magnificent machines.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Experience Card 1 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="h-48 bg-jet-800 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1534870439272-475575042b61?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Basic Flight Experience" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-jet-950 to-transparent h-1/2"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-display text-xl font-bold">Basic Flight</h3>
+                            <div class="bg-jet-800 px-3 py-1 rounded-lg">
+                                <p class="text-radar-400 font-display font-bold">$12,500</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-400 text-sm mb-4">Experience basic maneuvers and get a taste of fighter jet capabilities with a 30-minute flight.</p>
+                        
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">30 Minute Flight</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">Basic Aerobatics</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">4G Experience</span>
+                            </li>
+                            <li class="flex items-center opacity-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                <span class="text-sm">Weapons Systems</span>
+                            </li>
+                        </ul>
+                        
+                        <button class="w-full py-3 rounded-lg bg-jet-800 hover:bg-radar-500 font-display font-medium transition-colors">BOOK EXPERIENCE</button>
+                    </div>
+                </div>
+                
+                <!-- Experience Card 2 -->
+                <div class="bg-gradient-to-br from-jet-900 to-jet-950 rounded-xl overflow-hidden border-2 border-radar-500 shadow-lg shadow-radar-500/10 relative z-10 transform lg:-translate-y-4">
+                    <div class="absolute top-0 right-0 bg-radar-500 text-white font-display font-medium text-sm py-1 px-4 rounded-bl-lg">
+                        MOST POPULAR
+                    </div>
+                    
+                    <div class="h-48 bg-jet-800 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1578375772382-4e61a16dccc9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Advanced Flight Experience" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-jet-950 to-transparent h-1/2"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-display text-xl font-bold">Advanced Flight</h3>
+                            <div class="bg-radar-500 px-3 py-1 rounded-lg">
+                                <p class="text-white font-display font-bold">$25,000</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-300 text-sm mb-4">Full 60-minute combat training scenario with advanced maneuvers and systems operation.</p>
+                        
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">60 Minute Flight</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">Advanced Aerobatics</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">7G Experience</span>
+                            </li>
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-radar-400 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-sm">Weapons Systems Training</span>
+                            </li>
+                        </ul>
+                        
+                        <button class="w-full py-3 rounded-lg bg-radar-500 hover:bg-radar-600 font-display font-medium transition-colors">BOOK EXPERIENCE</button>
+                    </div>
+                </div>
+                
+                <!-- Experience Card 3 -->
+                <div class="bg-jet-900 rounded-xl overflow-hidden border border-jet-800 group hover:border-radar-500 transition-all duration-300">
+                    <div class="h-48 bg-jet-800 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1563302905-4a2f757e6ae7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Elite Combat Experience" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500" />
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-jet-950 to-transparent h-1/2"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-display text-xl font-bold">Elite Combat</h3>
+                            <div class="bg-jet-800 px-3 py-1 rounded-lg">
+                                <p class="text-radar-400 font-display font-bold">$45,000</p>
+                            </div>
+                        </div>
+                        
+                        <p class="text-gray-400 text-sm mb-4">Full day experience with multiple flights, dogfight scenarios, and virtual weapons deployment.</p>
+                        
+                        <ul class="space-y-2 mb-6">
+                            <li class="flex items-center">
+                                <svg xmlns="http://www.w3.org/…
